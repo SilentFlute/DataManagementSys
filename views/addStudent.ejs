@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>增加学生-数据管理系统</title>
+    <link href="/css/bootstrap.css" rel="stylesheet" />
+    <!-- FONT AWESOME ICONS  -->
+    <link href="/css/font-awesome.css" rel="stylesheet" />
+    <!-- CUSTOM STYLE  -->
+    <link href="/css/style.css" rel="stylesheet" />
+    <style type="text/css">
+        .alert{
+            padding: 0 15px;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- HEADER END-->
+    <div class="navbar navbar-inverse set-radius-zero">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html">
+                    <h1>数据管理系统</h1>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+    <!-- LOGO HEADER END-->
+    <section class="menu-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="navbar-collapse collapse ">
+                        <ul id="menu-top" class="nav navbar-nav navbar-right">
+                            <li>
+                                <a href="/">所有学生</a>
+                            </li>
+                            <li>
+                                <a class="menu-top-active" href="/addStudent">增加学生</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!-- MENU SECTION END-->
+    <div class="content-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="page-head-line">增加学生</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-1">
+                    <p>
+                        学号：
+                    </p>
+                </div>
+                <div class="col-md-5">
+                    <p>
+                        <input type="text" class="form-control" name="sid">
+                    </p>
+                     <div class="alert" role="alert" id="sid_tip" style="display:none;"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1">
+                    <p>
+                        姓名：
+                    </p>
+                </div>
+                <div class="col-md-5">
+                    <p>
+                        <input type="text" class="form-control" name="name">
+                    </p>
+                </div>  
+            </div>
+            <div class="row">
+                <div class="col-md-1">
+                    <p>
+                        年龄：
+                    </p>
+                </div>
+                <div class="col-md-5">
+                    <p>
+                        <input type="text" class="form-control" name="age">
+                    </p>
+                </div>  
+            </div>
+             <div class="row">
+                <div class="col-md-1">
+                    <p>
+                        性别：
+                    </p>
+                </div>
+                <div class="col-md-5">
+                    <p>
+                        <label><input type="radio"  value="男" name="sex">男</label>
+                        <label><input type="radio"  value="女" name="sex">女</label>
+                    </p>
+                </div>  
+            </div>
+            <div class="row">
+                <div class="col-md-1">
+                    
+                </div>
+                <div class="col-md-5">
+                    <button class="btn btn-success" id="btn">提交</button>
+                </div>  
+            </div>
+        </div>
+        <!--  end  Context Classes  --> </div>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript">
+        var ipt=$("input[name=sid]")
+        //点击提交按钮的时候做的事情
+        $("#btn").click(function(){
+            $.post("/student",{
+                sid:parseInt(ipt.val()),
+                name:$("input[name=name]").val(),
+                sex:$("input[name=sex]:checked").val(),
+                age:parseInt($("input[name=age]").val())
+            },function(data){
+                //点击提交保存数据,发出Ajax请求,根据服务器返回的值(1,-1,-2)来判断数据是否成功保存
+                switch(data.result){
+                    case 1:
+                        alert("数据已成功保存!");
+                        //成功保存数据之后,清空文本框,并且让提示框隐藏,性别选项取消勾选
+                        $("input[type=text]").val("");
+                        $("#sid_tip").hide();
+                        $("input[name=sex]:checked").attr("checked",false);
+                        break;
+                    case -1:
+                        alert("学号被占用,数据保存失败!");
+                        break;
+                    case -2:
+                        alert("服务器错误,数据保存失败,请稍后再试!");
+                        break;
+                    case 0:
+                        alert("请填写学号等信息,然后点击提交按钮重试!");
+                        break;
+                }
+            })
+        })
+
+        //学号输入框失去焦点的时候验证学号是否被占用
+        ipt.blur(function(){
+            var sid=parseInt(ipt.val());
+            //将输入的内容限制为有限长度的数字(验证输入的学号的有效性)
+            if(isNaN(sid)||!sid||!(sid>=100000&&sid<=999999)){
+                $("#sid_tip").removeClass("alert-success").addClass("alert-danger").
+                    html("请填写6位以内的数字作为学号").show();
+                return;
+            }
+            //失去焦点时发出Ajax请求来根据服务器的返回值(true false)来判断学号是否被占用
+            $.ajax({
+                type:"propfind",
+                url:"/student/"+sid,
+                //用验证学号是否占用的返回值来给用户一个反馈
+                success:function(data){
+                    switch(data.result){
+                        case true:
+                            $("#sid_tip").removeClass("alert-danger").addClass("alert-success").
+                            html("恭喜,学号可以使用!").show();
+                            break;
+                        case false:
+                            $("#sid_tip").removeClass("alert-success").addClass("alert-danger").
+                            html("该学号已被占用,请重新输入!").show();
+                            break;
+                    }
+                }
+            })
+        })
+
+        ipt.focus(function(){
+            $("#sid_tip").hide();
+        })
+    </script>
+<!-- CONTENT-WRAPPER SECTION END-->
+<footer>
+<div class="container">
+<div class="row">
+    <div class="col-md-12">
+         
+    </div>
+
+</div>
+</div>
+</footer>
+<!-- FOOTER SECTION END-->
+
+<!-- GOOGLE ADD SECTION START -->
+<div id="add-div-main">
+ 
+<div class="add-wrapper-db">
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="add-block">
+                
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-center">
+            <div class="add-block" id="ftr-large-add"  >
+
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+</div>
+ 
+
+</body>
+</html>

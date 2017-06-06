@@ -1,0 +1,20 @@
+﻿{
+  "name": "login_certification",
+  "version": "1.0.0",
+  "description": "Mongoose集合Express的数据管理系统--MVC模式",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "NodeJS+Express+Mongoose+EJS"
+  ],
+  "author": "Ronan",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^2.5.6",
+    "express": "^4.15.3",
+    "formidable": "^1.1.1",
+    "mongoose": "^4.10.4"
+  }
+}
